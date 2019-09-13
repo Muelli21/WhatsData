@@ -287,6 +287,21 @@ header #divHeadline a:hover{
     text-decoration: none;
 }
 
+.streakButtonDiv {
+    width: 100%;
+    text-align: center;
+}
+
+.showMoreButtonText {
+    background-color: #075E54;
+    padding: 0.5em;
+    margin: 0.5em;
+}
+
+.showMoreButtonText:hover {
+    background-color: #128C7E;
+}
+
 .chatInformationSection {
    clear: both;
    width: 100%;

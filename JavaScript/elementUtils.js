@@ -14,6 +14,12 @@ function createTextElement(parentElement, text, className) {
     return element;
 }
 
+function updateTextElement(element, text) {
+    clearElement(element);
+    let elementText = document.createTextNode(text);
+    element.appendChild(elementText);
+}
+
 function createHeadline(parentElement, text, type, className) {
 
     if (type != "h1" || type != "h2" || type != "h3" || type != "h4") {
@@ -45,6 +51,24 @@ function createButtonElement(parentElement, text, className, functionToExecute) 
     element.className = className + "Hidden";
     element.id = text + "Hidden";
     element.onclick = functionToExecute;
+    parentElement.appendChild(element);
+
+    let label = document.createElement("label");
+    label.htmlFor = element.id;
+    label.className = className;
+    parentElement.appendChild(label);
+    element.style.display = "none";
+    let textElement = createTextElement(label, text, className + "Text");
+
+    return [element, label, textElement];
+}
+
+function createButtonElementWithoutFunction(parentElement, text, className) {
+    let element = document.createElement("input");
+    element.type = "button";
+    element.value = text;
+    element.className = className + "Hidden";
+    element.id = text + "Hidden";
     parentElement.appendChild(element);
 
     let label = document.createElement("label");

@@ -110,6 +110,12 @@ function Participant(name) {
         return days;
     }
 
+    this.isActiveDay = function(date) {
+        date = date.withoutTime();
+        let array = this.getActiveDays();
+        return !!array.find(item => {return item.getTime() == date.getTime()});
+    }
+
     this.getMostUsedWords = function() {
         return getMostUsedWords(this.allWords, 3, 15, this.name);
     }

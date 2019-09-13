@@ -103,7 +103,6 @@ function toggleVisibilityUsingHeight(element, boolean) {
             let height = childElement.offsetHeight;
 
             if(!isNaN(height)) {
-                console.log(height);
                 combinedHeight = combinedHeight + height;
             }
         }
@@ -284,13 +283,36 @@ function isTheSameDate(date1, date2) {
     return false;
 }
 
-function getDateStreak(dates) {
+function Streak(startDate, endDate, streakLength, type) {
+
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.streakLength = streakLength;
+    this.type = type;
+
+    this.getStartDate = function() {
+        return this.startDate;
+    }
+
+    this.getEndDate = function() {
+        return this.endDate;
+    }
+
+    this.getStreakLength = function() {
+        return this.streakLength + 1;
+    }
+
+    this.getType = function() {
+        return this.type;
+    }
+}
+
+function getDateStreak(dates, type) {
 
     let previousDate = dates[0] || new Date();
-    let globalStreak = 0;
-    let globalStreakStartIndex = 0;
-    let streak = 0;
-    let streakStartIndex = 0;
+    let currentStreak = 0;
+    let currentStreakStartIndex = 0;
+    let streaks = [];
 
     for(i = 0; i<dates.length; i++) {
 
@@ -299,25 +321,40 @@ function getDateStreak(dates) {
         calculatedDate.setDate(currentDate.getDate() - 1);
 
         if(isTheSameDate(previousDate, calculatedDate)) {
-            streak++;
+            currentStreak++;
             
         } else {
 
-            if (streak > globalStreak) {
-                globalStreak = streak;
-                globalStreakStartIndex = streakStartIndex;
+            if (currentStreak >= 1) {
+                let startDate = dates[currentStreakStartIndex];
+                let endDate = dates[currentStreakStartIndex + currentStreak];
+                streaks.push(new Streak(startDate, endDate, currentStreak, type));
             }
 
-            streak = 0;
-            streakStartIndex = i;
+            currentStreak = 0;
+            currentStreakStartIndex = i;
+        }
+
+        if (i == dates.length - 1 && currentStreak >= 1) {
+            let startDate = dates[currentStreakStartIndex];
+            let endDate = dates[currentStreakStartIndex + currentStreak];
+            streaks.push(new Streak(startDate, endDate, currentStreak, type));
         }
 
         previousDate = currentDate;
     }
 
-    let startDate = dates[globalStreakStartIndex];
-    let endDate = dates[globalStreakStartIndex + globalStreak];
-    return [startDate, endDate, globalStreak];
+    streaks = streaks.sort(function (a,b) { 
+        return b.getStreakLength() - a.getStreakLength();
+    });
+
+    let MAX_LENGTH = 7;
+
+    if (streaks.length >= MAX_LENGTH) {
+        streaks = streaks.slice(0, MAX_LENGTH + 1);
+    }
+
+    return [streaks, type];
 }
 
 function getPeakHours(allMessages, origin) {
@@ -350,7 +387,7 @@ function dayIndexToDayString(index) {
 
 function monthIndexToString(index) {
 
-    let months = ["January", "February", "March", "April", "May", "June", "Jule", "August", "September", "October", "November", "December"]
+    let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     return months[index];
 }
 
@@ -376,24 +413,51 @@ function getPeakDays(allMessages, origin) {
     return [peakDay, messagesPerDay, origin];
 }
 
+function DateEntry(date) {
+
+    this.date = date;
+    this.messages = [];
+    this.participants = [];
+
+    this.addMessage = function(message) {
+        this.messages.push(message);
+    }
+
+    this.addParticipant = function(participant) {
+        if (!this.participants.includes(participant)) {
+            this.participants.push(participant);
+        }
+    }
+
+    this.getMessages = function() {
+        return this.messages;
+    }
+
+    this.getParticipants = function() {
+        return this.participants;
+    }
+}
+
 function getTimeline(owner, allMessages) {
 
-    let dates = {};
+    let dateEntries = {};
     let startDate = allMessages[0].getDate() || new Date();
     let endDate = allMessages[allMessages.length -1].getDate() || new Date();
 
     let allDates = getDatesInbetween(startDate, endDate);
 
     for (let date of allDates) {
-        dates[date.getTime()] = [];
+        dateEntries[date.getTime()] = new DateEntry(date);
     }
 
     for (let message of allMessages) {
         let date = message.getDate().withoutTime();
-        dates[date.getTime()].push(message);
+        let dateEntry = dateEntries[date.getTime()];
+        dateEntry.addMessage(message);
+        dateEntry.addParticipant(message.getParticipant());
     }
 
-    return [dates, owner];
+    return [dateEntries, owner];
 }
 
 function getTimelineToPrint(dates) {
@@ -412,14 +476,16 @@ function getTimelineToPrint(dates) {
     return [dateArray, amountOfMessagesPerDate];
 }
 
-function getMostActiveDay(timeline) {
+function getMostActiveDay(dateEntries) {
 
     let mostActiveDay;
     let messagesAtTheDay = [];
-    let dates = Object.keys(timeline);
+    let dates = Object.keys(dateEntries);
+
 
     for (let date of dates) {
-        let messages = timeline[date];
+        let dateEntry = dateEntries[date];
+        let messages = dateEntry.getMessages();
 
         if (messages.length > messagesAtTheDay.length) {
             mostActiveDay = date;
@@ -433,13 +499,36 @@ function getMostActiveDay(timeline) {
     return [date, messagesAtTheDay];
 }
 
-function streaksElement(chatStreak, type,  description) {
-    let streaksDiv = document.getElementById("streaks");
+// return [streaks, type];
 
-    let fact = chatStreak[2] + " day " + type;
-    let dates = "From " + chatStreak[0].getMonthDayYearString() + " to " + chatStreak[1].getMonthDayYearString();
+function streakElement(chatStreak, description) {
+    
+    let streaksDiv = document.getElementById("infoBoxesStreaks");
+    let streaks = chatStreak[0];
+    let globalStreak = streaks[0];
+
+    let fact = globalStreak.getStreakLength() + " day " + globalStreak.getType();
+    let dates = "From " + globalStreak.getStartDate().getMonthDayYearString() + " to " + globalStreak.getEndDate().getMonthDayYearString();
     let descriptionArray = [dates, description];
     infoBoxElement(streaksDiv, fact, descriptionArray);
+}
+
+function toggleAdvancedStreakSection(textElement) {
+
+    let element = document.getElementById("streakChart");
+    clearElement(element);
+
+    if (!chat.isShowingStreakCharts()) {
+        createStreakChart(chat.getChatStreak(), document.getElementById("streakChart"));
+        createStreakChart(chat.getNoMessageStreak(), document.getElementById("streakChart"));
+        createStreakChart(chat.getIgnoredStreak(), document.getElementById("streakChart"));
+
+        updateTextElement(textElement, "Hide");
+        chat.setShowingStreakCharts(true);
+    } else {
+        updateTextElement(textElement, "Show more");
+        chat.setShowingStreakCharts(false);
+    }
 }
 
 function infoBoxElement(parentElement, fact, descriptionArray) {
@@ -450,6 +539,7 @@ function infoBoxElement(parentElement, fact, descriptionArray) {
     for (let description of descriptionArray) {
         createTextElement(div, description, "infoBoxDescription");
     }
+    return div;
 }
 
 function participantsElement(participant, parentElement) {

@@ -11,20 +11,20 @@ function createTimelineCharts(timelines, parentElement) {
 
     for (let timeline of timelines) {
 
-        let timelineEntries = timeline[0];
-
+        let dateEntries = timeline[0];
         let dataSet = [];
         let index = colors.getIndexOfSubsequentColorSet();
 
         for (let key of keys) {
             let timelineKey = key.withoutTime();
             let time = timelineKey.getTime();
-            let messages = timelineEntries[time];
+            let dateEntry = dateEntries[time];
             let numberOfMessages;
 
-            if (messages == null) {
+            if (dateEntry == null) {
                 numberOfMessages = 0;
             } else {
+                let messages = dateEntry.getMessages();
                 numberOfMessages = messages.length;
             }
 
@@ -44,8 +44,8 @@ function createTimelineCharts(timelines, parentElement) {
 
 function createTimelineChart(timeline, parentElement) {
  
-    let timelineEntries = timeline[0];
-    let keys = Object.keys(timelineEntries);
+    let dateEntries = timeline[0];
+    let keys = Object.keys(dateEntries);
 
     let labelSet = [];
     let dataSet = [];
@@ -53,7 +53,8 @@ function createTimelineChart(timeline, parentElement) {
     for (let key of keys) {
         let date = new Date();
         date.setTime(key);
-        let messages = timelineEntries[key];
+        let dateEntry = dateEntries[key];
+        let messages = dateEntry.getMessages();
         let numberOfMessages = messages.length;
 
         labelSet.push(date.getMonthDayYearString());

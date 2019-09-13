@@ -27,6 +27,7 @@ function Chat(file, plainText) {
     this.android = false;
     this.displayedParticipants = [];
     this.showAll = false;
+    this.showingStreakCharts = false;
 
     this.reset = function() {
         this.allMessages.clear();
@@ -48,6 +49,14 @@ function Chat(file, plainText) {
 
     this.isShowAll = function() {
         return this.showAll;
+    }
+
+    this.isShowingStreakCharts = function() {
+        return this.showingStreakCharts;
+    }
+
+    this.setShowingStreakCharts = function(boolean) {
+        this.showingStreakCharts = boolean;
     }
 
     this.addParticipant = function(name, participant) {
@@ -141,13 +150,19 @@ function Chat(file, plainText) {
     this.getChatStreak = function() {
 
         let activeDays = this.getActiveDays();
-        return getDateStreak(activeDays);
+        return getDateStreak(activeDays, "Chatstreak");
     }
 
     this.getNoMessageStreak = function() {
 
         let inactiveDays = this.getInactiveDays();
-        return getDateStreak(inactiveDays);
+        return getDateStreak(inactiveDays, "No-message-streak");
+    }
+
+    this.getIgnoredStreak = function() {
+
+        let ignoredDays = this.getDaysSomeoneIsIgnored();
+        return getDateStreak(ignoredDays, "Someone-was-ignored-streak");
     }
 
     this.getActiveDays = function() {
@@ -213,6 +228,42 @@ function Chat(file, plainText) {
         }
 
         return days;
+    }
+
+    this.getDaysSomeoneIsIgnored = function() {
+
+        let dates = [];
+
+        let timeline = this.getTimeline();
+        let dateEntries = timeline[0];
+        let keys = Object.keys(dateEntries);
+
+        let lastActiveParticipants = [];
+        for (let key of keys) {
+            let dateEntry = dateEntries[key];
+            let participants = dateEntry.getParticipants();
+
+            if (participants.length == 1) {
+                if (lastActiveParticipants.includes(participants[0])) {
+                    let date = new Date();
+                    date.setTime(key);
+                    dates.push(date);
+                }
+            }
+
+            if (participants.length >= 1) {
+                lastActiveParticipants.clear();
+                lastActiveParticipants.push(...participants);
+            }
+
+            if (participants.length == 0) {
+                let date = new Date();
+                date.setTime(key);
+                dates.push(date);
+            }
+        }
+
+        return dates;
     }
 
     this.getPeakHours = function() {

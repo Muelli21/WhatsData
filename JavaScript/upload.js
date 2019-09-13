@@ -99,21 +99,23 @@ function clearAllSections() {
 
     let elementsToClear = document.querySelectorAll('.toClear');
     for (let element of elementsToClear) {
-        while (element.hasChildNodes()) {
-            element.removeChild(element.firstChild);
-         }
+        clearElement(element);
     }
     clearParticipantsSection();
     clearParticipantsButtonsSection();
+}
+
+function clearElement(element) {
+    while (element.hasChildNodes()) {
+        element.removeChild(element.firstChild);
+    }
 }
 
 function clearParticipantsSection() {
 
     let elementsToClear = document.querySelectorAll('.toClearParticipants');
     for (let element of elementsToClear) {
-        while (element.hasChildNodes()) {
-            element.removeChild(element.firstChild);
-         }
+        clearElement(element);
     }
 }
 
@@ -173,8 +175,19 @@ function displayChatInformation() {
     infoBoxElement(document.getElementById("activities"), chat.getAverageMessagesPerDay().toFixed(2), ["messages per day"]);
     infoBoxElement(document.getElementById("activities"), mostActiveDay[1].length + " messages were sent", ["on " + mostActiveDay[0].getMonthDayYearString()]);
 
-    streaksElement(chat.getChatStreak(), "ChatStreak", "at least two participants chatted daily");
-    streaksElement(chat.getNoMessageStreak(), "NoMessageStreak", "less than two participants used the chat");
+    streakElement(chat.getChatStreak(), "at least two participants chatted daily");
+    streakElement(chat.getNoMessageStreak(), "less than two participants used the chat");
+    streakElement(chat.getIgnoredStreak(), "one participant did not get an answer");
+
+    let streakButtonDiv = createHTMLElement(document.getElementById("infoBoxesStreaks"), "div", "streakButtonDiv");
+    let button = createButtonElementWithoutFunction(streakButtonDiv, "Show more", "showMoreButton");
+    let buttonElement = button[0];
+    let buttonTextElement = button[2];
+    buttonElement.onclick = (function(variable) {
+        return function() {
+            toggleAdvancedStreakSection(variable);
+        };
+    })(buttonTextElement);
 
     createParticipationCharts();
 
@@ -245,12 +258,16 @@ function displayParticipantsInformation() {
 }
 
 function toggleAboutSection() {
-    let aboutSection = document.getElementById("about");
+    let section = document.getElementById("about");
+    toggleSection(section);
+}
+
+function toggleSection(element) {
     let visible = true;
 
-    if (aboutSection.style.height == "0px"|| aboutSection.style.height == 0) {
+    if (element.style.height == "0px"|| element.style.height == 0) {
         visible = false;
     }
 
-    toggleVisibilityUsingHeight(aboutSection, !visible);
+    toggleVisibilityUsingHeight(element, !visible);
 }
