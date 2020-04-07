@@ -1,225 +1,71 @@
-<html>
-    <head>
-        <title>WhatsData</title>
-        <link rel="shortcut icon" type="image/x-icon" href="./Resources/WhatsAppLogo.png">
-        <link rel = "stylesheet" type = "text/css" href = "Css/style.css" />
-        <link rel = "stylesheet" type = "text/css" href = "Css/chartsStyle.css" />
+<!DOCTYPE html>
+<html lang="en">
 
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Needleman Wunsch</title>
+    <link rel="shortcut icon" type="image/x-icon" href="Icon.png">
 
-        <script src="JavaScript/scroll.js"></script>
-        <script src="JavaScript/message.js"></script>
-        <script src="JavaScript/participant.js"></script>
-        <script src="JavaScript/chat.js"></script>
-        <script src="JavaScript/utils.js"></script>
-        <script src="JavaScript/upload.js"></script>
-        <script src="JavaScript/participationCharts.js"></script>
-        <script src="JavaScript/peakCharts.js"></script>
-        <script src="JavaScript/timelineChart.js"></script>
-        <script src="JavaScript/prototypeAdditions.js"></script>
-        <script src="JavaScript/elementUtils.js"></script>
-        <script src="JavaScript/colorUtils.js"></script>
-        <script src="JavaScript/streakChart.js"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="Icon.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <header>
-            <img id="logoImage" src = "./Resources/WhatsAppLogo.png";>
-            <div id="divHeadline">
-                <div id ="navbar">
-                    <a href="#">WhatsData</a>
-                    <a href="#" onclick="toggleAboutSection()">About</a>
-                    <a href = #footer>Contact</a>
-                </div>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+
+    <script src="Javascript/compare.js"></script>
+
+    <script src="Javascript/Algorithms/Alignment.js"></script>
+    <script src="Javascript/Algorithms/NeedlemanWunsch.js"></script>
+    <script src="Javascript/Algorithms/HirschbergsAlgorithm.js"></script>
+    <script src="Javascript/Algorithms/AlignmentAlgorithm.js"></script>
+
+    <script src="Javascript/Utils/Matrix.js"></script>
+    <script src="Javascript/Utils/prototypeUtils.js"></script>
+    <script src="Javascript/Utils/elementUtils.js"></script>
+    <script src="Javascript/Utils/visibilityUtils.js"></script>
+
+</head>
+
+<body>
+    <div id="colorBanner"></div>
+    <div id="container">
+        <h1 class="font2">SEQUENCE ALIGNMENTS</h1>
+        <div id="explanation">
+            <p>
+                This webpage compares strings, amino-acid- and nucleotide-seuqences regarding their similarity. To do so, the
+                Needleman-Wunsch-Algorithm and Hirschberg's Algorithm are used.
+            </p>
+        </div>
+        <div id="inputContainer">
+            <div class="top" id="topLeft">
+                <p>Please insert your first sequence here!</p>
             </div>
-        </header>
-        <div id="start">
-        <div id="content">
-            <div id="about">
-                <p>
-                    This website was built out of pure interest in HTML, CSS and Javascript. 
-                    Setting up this WhatsApp-Chat-Analyzer helped me (the author) to get insight in javascript's pecularities. 
-                    Thus, it enabled me to better understand how interactive websites are built.
-                    <br>
-                    <br>
 
-                    In case you are interested in the code that runs this webpage, please consider checking out the website's git project: 
-                    <br>
-                </p>
-                <a href="https://github.com/Muelli21/WhatsData">Github</a>
+            <div class="top" id="topRight">
+                <p>Please insert your second sequence here!</p>
             </div>
-            <div class = "container">
-                <article class = "one-fourth fullHeight">
-                    <div class ="phoneDiv">
-                        <img class="steps" src = "./Resources/Step1Phone.PNG";>
-                        <h2>1</h2>
-                        <div class="center">
-                            <span class="leftAlign">
-                                <p>Go to the contact info of the chat you want to analyze and click on "Export Chat"</p>
-                            </span>
-                        </div>
-                    </div>
-                </article>
-                <article class = "one-fourth fullHeight">
-                    <div class ="phoneDiv">
-                        <img class="steps" src = "./Resources/Step2Phone.PNG";>
-                        <h2>2</h2>
-                        <div class="center">
-                            <span class="leftAlign">
-                                <p>A context-menu should have popped up. Click on "Without Media"</p>
-                            </span>
-                        </div>
-                    </div>
-                </article>
-                <article class = "one-fourth fullHeight">
-                    <div class ="phoneDiv">
-                        <img class="steps" src = "./Resources/Step3Phone.PNG";>
-                        <h2>3</h2>
-                        <div class="center">
-                            <span class="centerAlign">
-                                <p>Now click on "Save to files"</p>
-                            </span>
-                        </div>
-                    </div>   
-                </article> 
-                <article class = "one-fourth reducedHeight">
-                    <div id ="divInput">
-                        <input type="file" id="openFile" accept=".txt" onchange="handleFiles(this.files)">
-                        <label id="alternativeButton" for="openFile">
-                            <div>
-                                <img id="uploadImage" src = "./Resources/Upload.png";>
-                                <div id="fileList">
-                                    <p>Click here to select the file <br/> it will then be uploaded and processed <hr/> <b>NOTE:</b> <br/> All the processing will take place client-sided on your computer</p>
-                                </div>
-                                <button id = "viewResultsButton" onclick="displayResults()">View results</button>
-                            </div>
-                        </label>
-                    </div>   
-                </article> 
+
+            <div id="leftInput">
+                <textarea name="input1" id="input1"></textarea>
+            </div>
+
+            <div id="rightInput">
+                <textarea name="input2" id="input2"></textarea>
             </div>
         </div>
-            <div id="results">
-                <div class = "container">
-                    <div id="chatInformation" class = "information">
-                        <h1>Chat</h1>
-                        
-                        <div id="fromTo" class="toClear">
-
-                        </div>
-
-                        <p>Participants:</p>
-
-                        <div id="participantsLinks1" class="chatInformationSection toClearParticipantsButtons">
-
-                        </div>
-
-                        <div id="participants" class = "chatInformationSection toClear">
-                            
-                        </div>
-
-                        <p>Totals:</p>
-                        <div id="totals" class = "chatInformationSection toClear">
-
-                        </div>
-
-                        <p>Timeline:</p>
-
-                        <div id="timelineChart" class = "timelineChart toClear">
-                            
-                        </div>
-
-                        <p>Activity:</p>
-                        <div id="activities" class = "chatInformationSection toClear">
-
-                        </div>
-
-                        <p>Peak:</p>
-                        <div id="peaks" class = "chatInformationSection">
-                            <div id="peakDayChart" class="peakChart toClear">
-
-                            </div>
-                            <div id="peakHourChart" class="peakChart toClear">
-
-                            </div>
-                        </div>
-
-                        <p>Streaks:</p>
-                        <div id="streaks">
-
-                            <div id="infoBoxesStreaks" class = "chatInformationSection toClear">
-
-                            </div>
-
-                            <div id="streakChart" class = "chatInformationSection toClear">
-                                
-                            </div>
-                        </div>
-
-                        <p>Most used words:</p>
-                        <div id="mostUsedWords" class = "toClear">
-
-                        </div>
-                    </div>
-                    <div id="participantInformation" class = "information">
-                        <h1>Participants</h1>
-                        <div id="participantsLinks2" class="toClearParticipantsButtons">
-
-                        </div>
-
-                        <div id="noParticipantAlert">
-                            <div id="noParticipantAlertDiv">
-                                <p>Select the participants you want to compare!</p>
-                            </div>
-                        </div>
-
-                        <div id="participantsContent">
-                            <p>Totals:</p>
-                            <div id="participantsTotals" class = "chatInformationSection toClearParticipants">
-
-                            </div>
-
-                            <p>Timeline:</p>
-                            <div id="participantsTimelineChart" class = "timelineChart toClearParticipants">
-                                
-                            </div>
-
-                            <p>Activity:</p>
-                            <div id="participantsAcitivities" class = "chatInformationSection toClearParticipants">
-
-                            </div>
-
-                            <p>Peak:</p>
-                            <div id="participantsPeaks" class = "chatInformationSection ">
-                                <div id="participantsPeakDayChart" class="peakChart toClearParticipants">
-
-                                </div>
-                                <div id="participantsPeakHourChart" class="peakChart toClearParticipants">
-
-                                </div>
-                            </div>
-
-                            <p>Most used words:</p>
-                            <div id="participantsMostUsedWordsWrapper" class = "toClearParticipants">
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+        <div id="button">
+            <a href="#" onclick="parseUserInput()" class = "font2">Compare</a>
         </div>
-        <footer id="footer">
-            <div id="divHeadline">
-                <div id ="navbar">
-                    <a href = "impressum.html">Impressum</a>
-                    <a href = "https://www.instagram.com/wal_lew/">@Valentin Roth</a>
-                </div>
-            </div> 
-        </footer>
-    </body>
+        <div id="results" class="font2">
+
+        </div>
+    </div>
+    <footer>
+        <p class="font2">@Valentin Roth</p>
+    </footer>
+    <div id="colorBanner"></div>
+</body>
+
 </html>
