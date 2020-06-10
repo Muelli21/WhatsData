@@ -97,9 +97,7 @@ function displayResults() {
     displayParticipantsInformation();
     toggleDisplayVisibility(results, true);
     
-    setTimeout(() => {
-        results.scrollIntoView(true);
-    }, 100);
+    $("html, body").animate({ scrollTop: results.offsetTop }, "slow");
 }
 
 function displayParticipants(showAll) {

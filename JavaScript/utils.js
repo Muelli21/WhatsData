@@ -225,9 +225,7 @@ function handleParticipant(participant) {
     displayParticipants(chat.isShowAll());
     displayParticipantsInformation();
 
-    setTimeout(() => {
-        participantInformation.scrollIntoView(true);
-    }, 100);
+    $("html, body").animate({ scrollTop: participantInformation.offsetTop }, "slow");
 }
 
 function getUniqueWords(allWords) {
