@@ -1,6 +1,6 @@
 function Participant(name) {
 
-    console.log("The Participant " + name + " has been created!");
+    console.log("The Participant " + name + " has been added!");
 
     this.name = name;
     this.allMessages = [];
