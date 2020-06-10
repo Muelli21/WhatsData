@@ -1,13 +1,14 @@
+
 /**
  * Features:
  * - displaying the participants - done
  * - startDate and endDate - done
- * - dates covered by the chat 
+ * - dates covered by the chat
  * - timeline
- * 
+ *
  * - most active day - done
  * - chatstreak and No-Message-Streak - done
- * 
+ *
  * - average messages per day - done
  * - most used words - done
  * - active and inactive days
@@ -15,73 +16,76 @@
  * - participation by messages, words, letters, days
  */
 
+const MIN_PARTICIPANTS_FOR_ACTIVE_DAY = 2;
+const MAX_PARTICIPANTS_FOR_INACTIVE_DAY = 0;
 
-function Chat(file, plainText) {
-    this.file = file;
-    this.plainText = plainText;
-    this.chatLines;
-    this.allMessages = [];
-    this.allWords = [];
-    this.participantsMap = new Map();
-    this.participantsArray = [];
-    this.android = false;
-    this.displayedParticipants = [];
-    this.showAll = false;
-    this.showingStreakCharts = false;
+class Chat {
+    constructor(file, plainText) {
 
-    this.reset = function() {
+        this.file = file;
+        this.plainText = plainText;
+        this.chatLines;
+        this.allMessages = [];
+        this.allWords = [];
+        this.participantsMap = new Map();
+        this.participantsArray = [];
+        this.android = false;
+        this.displayedParticipants = [];
+        this.showAll = false;
+        this.showingStreakCharts = false;
+    }
+
+    reset() {
         this.allMessages.clear();
         this.allWords.clear();
         this.chatLines.clear();
         this.participantsArray.clear();
         this.participantsMap.clear();
         this.displayedParticipants.clear();
-    } 
+    }
 
-    this.initialize = function() {
+    initialize() {
         checkOperationSystem();
         this.chatLines = splitLines(this.plainText);
     }
 
-    this.setShowAll = function(showAll) {
+    setShowAll(showAll) {
         this.showAll = showAll;
     }
 
-    this.isShowAll = function() {
+    isShowAll() {
         return this.showAll;
     }
 
-    this.isShowingStreakCharts = function() {
+    isShowingStreakCharts() {
         return this.showingStreakCharts;
     }
 
-    this.setShowingStreakCharts = function(boolean) {
+    setShowingStreakCharts(boolean) {
         this.showingStreakCharts = boolean;
     }
 
-    this.addParticipant = function(name, participant) {
+    addParticipant(name, participant) {
         this.participantsArray.push(participant);
         this.participantsMap.set(name, participant);
     }
 
-    this.getParticipantsArray = function() {
+    getParticipantsArray() {
         return this.participantsArray;
     }
 
-    this.hasParticipant = function(name) {
+    hasParticipant(name) {
         return this.participantsMap.has(name);
     }
 
-    this.getParticipant = function(name) {
-
-        if(!this.hasParticipant(name)) {
+    getParticipant(name) {
+        if (!this.hasParticipant(name)) {
             new Participant(name);
         }
-
         return this.participantsMap.get(name);
     }
 
-    this.handleDisplayedParticipant = function(participant) {
+    handleDisplayedParticipant(participant) {
         if (this.displayedParticipants.includes(participant)) {
             this.displayedParticipants.remove(participant);
         } else {
@@ -89,160 +93,138 @@ function Chat(file, plainText) {
         }
     }
 
-    this.getDisplayedParticipants = function() {
+    getDisplayedParticipants() {
         return this.displayedParticipants;
     }
 
-    this.isAndroid = function() {
+    isAndroid() {
         return this.android;
     }
 
-    this.setAndroid = function(android) {
+    setAndroid(android) {
         this.android = android;
     }
 
-    this.getPlainText = function() {
+    getPlainText() {
         return this.plainText;
     }
 
-    this.getAllMessages = function() {
+    getAllMessages() {
         return this.allMessages;
     }
 
-    this.getAllWords = function() {
+    getAllWords() {
         return this.allWords;
     }
 
-    this.addWord = function(word) {
+    addWord(word) {
         this.allWords.push(word);
     }
 
-    this.addMessage = function(message) {
+    addMessage(message) {
         this.allMessages.push(message);
     }
 
-    this.getChatLines = function() {
+    getChatLines() {
         return this.chatLines;
     }
 
-    this.getStartDate = function() {
+    getStartDate() {
         return this.allMessages[0].getDate();
     }
 
-    this.getEndDate = function() {
+    getEndDate() {
         return this.allMessages[this.allMessages.length - 1].getDate();
     }
 
-    this.getDatesCoveredByChat = function() {
+    getDatesCoveredByChat() {
         return getDatesInbetween(this.getStartDate(), this.getEndDate());
     }
 
-    this.getAverageMessagesPerDay = function() {
-        
+    getAverageMessagesPerDay() {
         let averageMessagesPerDay = this.getAllMessages().length / chat.getDatesCoveredByChat().length;
         return averageMessagesPerDay;
     }
 
-    this.getMostUsedWords = function() {
+    getMostUsedWords() {
         return getMostUsedWords(this.allWords, 5, 15, "chat");
     }
 
-    this.getChatStreak = function() {
-
+    getChatStreak() {
         let activeDays = this.getActiveDays();
         return getDateStreak(activeDays, "Chatstreak");
     }
 
-    this.getNoMessageStreak = function() {
-
+    getNoMessageStreak() {
         let inactiveDays = this.getInactiveDays();
         return getDateStreak(inactiveDays, "No-message-streak");
     }
 
-    this.getIgnoredStreak = function() {
-
+    getIgnoredStreak() {
         let ignoredDays = this.getDaysSomeoneIsIgnored();
         return getDateStreak(ignoredDays, "Someone-was-ignored-streak");
     }
 
-    this.getActiveDays = function() {
-
-        const MIN_PARTICIPANTS_FOR_ACTIVE_DAY = 2;
-        let daysCount = {};
-        
-        for(let participant of this.participantsArray) {
-            for (let date of participant.getActiveDays()) {
-                daysCount[date.getTime()] = daysCount[date.getTime()] || 0;
-                daysCount[date.getTime()]++;
-            }
-        }
-
-        let days = [];
-
-        for (let dayTime of Object.keys(daysCount)) {
-            if(daysCount[dayTime] >= MIN_PARTICIPANTS_FOR_ACTIVE_DAY) {
-                let activeDay = new Date();
-                activeDay.setTime(dayTime);
-                days.push(activeDay);
-            }
-        }
-
-        return days;
-    }
-
-    this.isActiveDay = function(date) {
+    isActiveDay(date) {
         date = date.withoutTime();
         let array = this.getActiveDays();
-        return !!array.find(item => {return item.getTime() == date.getTime()});
+        return !!array.find(item => { return item.getTime() == date.getTime(); });
     }
 
-    this.isInactiveDay = function(date) {
+    isInactiveDay(date) {
         date = date.withoutTime();
         let array = this.getInactiveDays();
-        return !!array.find(item => {return item.getTime() == date.getTime()});
+        return !!array.find(item => { return item.getTime() == date.getTime(); });
     }
 
-    this.getInactiveDays = function() {
-        
-        const MAX_PARTICIPANTS_FOR_INACTIVE_DAY = 0;
-        let daysCount = {};
+    getPeakHours() {
+        return getPeakHours(this.allMessages, "global");
+    }
 
+    getPeakDays() {
+        return getPeakDays(this.allMessages, "global");
+    }
+
+    getTimeline() {
+        return getTimeline("chat-timeline", this.allMessages);
+    }
+
+    getMostActiveDay() {
+        let timeline = this.getTimeline();
+        return getMostActiveDay(timeline[0]);
+    }
+
+    getInactiveDays() {
+        let daysCount = {};
         for (let date of this.getDatesCoveredByChat()) {
             daysCount[date.getTime()] = 0;
         }
-
-        for(let participant of this.participantsArray) {
+        for (let participant of this.participantsArray) {
             for (let date of participant.getActiveDays()) {
                 daysCount[date.getTime()]++;
             }
         }
-
         let days = [];
-
         for (let dayTime of Object.keys(daysCount)) {
-            if(daysCount[dayTime] <= MAX_PARTICIPANTS_FOR_INACTIVE_DAY) {
+            if (daysCount[dayTime] <= MAX_PARTICIPANTS_FOR_INACTIVE_DAY) {
                 let inactiveDay = new Date();
                 inactiveDay.setTime(dayTime);
                 days.push(inactiveDay);
             }
         }
-
         return days;
     }
 
-    this.getDaysSomeoneIsIgnored = function() {
-
+    getDaysSomeoneIsIgnored() {
         let dates = [];
-
         let timeline = this.getTimeline();
         let dateEntries = timeline[0];
         let keys = Object.keys(dateEntries);
-
         let lastActiveParticipants = [];
+        
         for (let key of keys) {
             let dateEntry = dateEntries[key];
             let participants = dateEntry.getParticipants();
-
             if (participants.length == 1) {
                 if (lastActiveParticipants.includes(participants[0])) {
                     let date = new Date();
@@ -250,36 +232,35 @@ function Chat(file, plainText) {
                     dates.push(date);
                 }
             }
-
             if (participants.length >= 1) {
                 lastActiveParticipants.clear();
                 lastActiveParticipants.push(...participants);
             }
-
             if (participants.length == 0) {
                 let date = new Date();
                 date.setTime(key);
                 dates.push(date);
             }
         }
-
         return dates;
     }
 
-    this.getPeakHours = function() {
-        return getPeakHours(this.allMessages, "global");
-    }
-
-    this.getPeakDays = function() {
-        return getPeakDays(this.allMessages, "global");
-    }
-
-    this.getTimeline = function() {
-        return getTimeline("chat-timeline", this.allMessages);
-    }
-
-    this.getMostActiveDay = function() {
-        let timeline = this.getTimeline();
-        return getMostActiveDay(timeline[0]);
+    getActiveDays() {
+        let daysCount = {};
+        for (let participant of this.participantsArray) {
+            for (let date of participant.getActiveDays()) {
+                daysCount[date.getTime()] = daysCount[date.getTime()] || 0;
+                daysCount[date.getTime()]++;
+            }
+        }
+        let days = [];
+        for (let dayTime of Object.keys(daysCount)) {
+            if (daysCount[dayTime] >= MIN_PARTICIPANTS_FOR_ACTIVE_DAY) {
+                let activeDay = new Date();
+                activeDay.setTime(dayTime);
+                days.push(activeDay);
+            }
+        }
+        return days;
     }
 }

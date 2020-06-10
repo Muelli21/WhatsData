@@ -1,4 +1,6 @@
-let chat;
+var chat = null;
+const MAX_PARTICIPANTS = 5;
+
 
 /**
  * TO-DO:
@@ -42,35 +44,37 @@ let chat;
 
 function handleFiles(files) {
     reset();
+
     const fileList = document.getElementById("fileList");
 
     if (!files.length) {
-        fileList.innerHTML = "<p>No files selected! <br> Please select a .txt-File</p>";
+        fileList.textContent = "No files selected! \n Please select a .txt-File";
     } else if (files != null) {
-        
+
         file = document.getElementById('openFile').files[0];
 
         if (!file.name.includes(".txt")) {
-            fileList.innerHTML = "<p>This is not a text-file!</p>"; 
-                return;
+            fileList.textContent = "This is not a text-file!";
+            return;
         } else {
-            fileList.innerHTML = "<p>This file appears to be appropriate!</p>"; 
+            fileList.textContent = "This file appears to be appropriate!";
         }
-    
+
         processFile();
     }
-} 
+}
 
 function processFile() {
 
     let fileReader = new FileReader();
     fileReader.readAsText(file);
-    fileReader.onload = function() {
+    
+    fileReader.onload = function () {
 
         let plainText = this.result;
         chat = new Chat(file, plainText);
         chat.initialize();
-        
+
         messageFactory();
         console.log("The files have been processed!");
         toggleVisibility(document.getElementById("viewResultsButton"), true);
@@ -81,7 +85,7 @@ function reset() {
     toggleDisplayVisibility(document.getElementById("results"), false);
     toggleVisibility(document.getElementById("viewResultsButton"), false);
     clearAllSections();
-    
+
     if (chat != null) {
         chat.reset();
     }
@@ -92,41 +96,10 @@ function displayResults() {
     displayChatInformation();
     displayParticipantsInformation();
     toggleDisplayVisibility(results, true);
-    $("html, body").animate({ scrollTop: results.offsetTop }, "slow");
-}
-
-function clearAllSections() {
-
-    let elementsToClear = document.querySelectorAll('.toClear');
-    for (let element of elementsToClear) {
-        clearElement(element);
-    }
-    clearParticipantsSection();
-    clearParticipantsButtonsSection();
-}
-
-function clearElement(element) {
-    while (element.hasChildNodes()) {
-        element.removeChild(element.firstChild);
-    }
-}
-
-function clearParticipantsSection() {
-
-    let elementsToClear = document.querySelectorAll('.toClearParticipants');
-    for (let element of elementsToClear) {
-        clearElement(element);
-    }
-}
-
-function clearParticipantsButtonsSection() {
-
-    let elementsToClear = document.querySelectorAll('.toClearParticipantsButtons');
-    for (let element of elementsToClear) {
-        while (element.hasChildNodes()) {
-            element.removeChild(element.firstChild);
-         }
-    }
+    
+    setTimeout(() => {
+        results.scrollIntoView(true);
+    }, 100);
 }
 
 function displayParticipants(showAll) {
@@ -134,7 +107,6 @@ function displayParticipants(showAll) {
     clearParticipantsButtonsSection();
     chat.setShowAll(showAll);
 
-    let MAX_PARTICIPANTS = 5;
     let count = 0;
     let parentElementChatSection = document.getElementById("participantsLinks1");
     let parentElementParticipantsSection = document.getElementById("participantsLinks2");
@@ -151,7 +123,7 @@ function displayParticipants(showAll) {
             break;
         }
 
-        if (showAll && count == chat.getParticipantsArray().length -1) {
+        if (showAll && count == chat.getParticipantsArray().length - 1) {
             hideAllParticipantsElement(parentElementChatSection);
             hideAllParticipantsElement(parentElementParticipantsSection);
         }
@@ -161,8 +133,9 @@ function displayParticipants(showAll) {
 }
 
 function displayChatInformation() {
-    
+
     let fromToDiv = document.getElementById("fromTo");
+
     createTextElement(fromToDiv, "from " + chat.getStartDate().getMonthDayYearString() + " until " + chat.getEndDate().getMonthDayYearString(), "fromTo");
     displayParticipants(false);
 
@@ -170,8 +143,9 @@ function displayChatInformation() {
     infoBoxElement(document.getElementById("totals"), chat.getAllMessages().length, ["messages"]);
     infoBoxElement(document.getElementById("totals"), chat.getAllWords().length, ["words"]);
     infoBoxElement(document.getElementById("totals"), getAmountOfLetters(chat.getAllWords()), ["letters"]);
-   
+
     let mostActiveDay = chat.getMostActiveDay();
+
     infoBoxElement(document.getElementById("activities"), chat.getAverageMessagesPerDay().toFixed(2), ["messages per day"]);
     infoBoxElement(document.getElementById("activities"), mostActiveDay[1].length + " messages were sent", ["on " + mostActiveDay[0].getMonthDayYearString()]);
 
@@ -183,8 +157,9 @@ function displayChatInformation() {
     let button = createButtonElementWithoutFunction(streakButtonDiv, "Show more", "showMoreButton");
     let buttonElement = button[0];
     let buttonTextElement = button[2];
-    buttonElement.onclick = (function(variable) {
-        return function() {
+    
+    buttonElement.onclick = (function (variable) {
+        return function () {
             toggleAdvancedStreakSection(variable);
         };
     })(buttonTextElement);
@@ -232,8 +207,8 @@ function displayParticipantsInformation() {
         infoBoxElement(totalsElement, participant.getAllWords().length, ["words"]);
         infoBoxElement(totalsElement, getUniqueWords(participant.getAllWords()).length, ["unique words"]);
         infoBoxElement(totalsElement, participant.getEloquenceRate().toFixed(1), [" unique words per 100 words"]);
-        
-        if(numberOfDisplayedParticipants > 1) {
+
+        if (numberOfDisplayedParticipants > 1) {
             infoBoxElement(totalsElement, participant.getAdjustedEloquenceRate(commonNumberOfWords).toFixed(1), [" unique words per 100 words", "(adjusted)"]);
         }
 
@@ -242,9 +217,9 @@ function displayParticipantsInformation() {
         let activitiesElement = createHTMLElement(document.getElementById("participantsAcitivities"), "div", "participantInformationSection");
         createTextElement(activitiesElement, participant.getName(), "participantName");
         infoBoxElement(activitiesElement, participant.getActiveDays().length, [" of " + chat.getDatesCoveredByChat().length + " days"]);
-        infoBoxElement(activitiesElement, participant.getAverageMessagesPerDay().toFixed(2), ["messages per day"]);  
+        infoBoxElement(activitiesElement, participant.getAverageMessagesPerDay().toFixed(2), ["messages per day"]);
         let mostActiveDay = participant.getMostActiveDay();
-        infoBoxElement(activitiesElement, mostActiveDay[1].length + " messages were sent", ["on " + mostActiveDay[0].getMonthDayYearString()]);  
+        infoBoxElement(activitiesElement, mostActiveDay[1].length + " messages were sent", ["on " + mostActiveDay[0].getMonthDayYearString()]);
 
         peakDays.push(participant.getPeakDays());
         peakHours.push(participant.getPeakHours());
@@ -252,22 +227,8 @@ function displayParticipantsInformation() {
         createMostUsedWordsChart(participant.getMostUsedWords(), document.getElementById("participantsMostUsedWordsWrapper"));
     }
 
-    createPeakDayChart(peakDays,  document.getElementById("participantsPeakDayChart"));
-    createPeakHourChart(peakHours,  document.getElementById("participantsPeakHourChart"));
+    createPeakDayChart(peakDays, document.getElementById("participantsPeakDayChart"));
+    createPeakHourChart(peakHours, document.getElementById("participantsPeakHourChart"));
     createTimelineCharts(timelines, document.getElementById("participantsTimelineChart"));
 }
 
-function toggleAboutSection() {
-    let section = document.getElementById("about");
-    toggleSection(section);
-}
-
-function toggleSection(element) {
-    let visible = true;
-
-    if (element.style.height == "0px"|| element.style.height == 0) {
-        visible = false;
-    }
-
-    toggleVisibilityUsingHeight(element, !visible);
-}
