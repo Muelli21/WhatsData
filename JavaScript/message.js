@@ -20,7 +20,7 @@ class Message {
 
     getDate() {
 
-        let year = "20" + this.getDateString().slice(6, 8);
+        let year = "20" + this.getDateString().slice(8, 10);
         let month = this.getDateString().slice(3, 5);
         let day = this.getDateString().slice(0, 2);
 

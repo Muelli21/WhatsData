@@ -162,6 +162,9 @@ function getTimeline(owner, allMessages) {
     let startDate = allMessages[0].getDate() || new Date();
     let endDate = allMessages[allMessages.length - 1].getDate() || new Date();
 
+    console.log(allMessages[allMessages.length - 1])
+    console.log(allMessages[allMessages.length - 1].getDate())
+
     let allDates = getDatesInbetween(startDate, endDate);
 
     for (let date of allDates) {

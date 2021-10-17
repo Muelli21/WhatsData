@@ -59,23 +59,23 @@ function splitLines(plainText) {
     let lines = [];
     let lastSlice = 0;
 
-    for (let pattern of dateTimePatterns) {
         
-        let regExpression = dateTimePatternToRegExpression(pattern);
-        let matches = getArrayOfMatches(plainText, regExpression);
+    let regExpression = /(\[*\d*(?:\/|\.)\d*(?:\/|\.)\d*\,\s\d*:\d*(?::|\s)\d*\-*\]*)/g;
+    let matches = getArrayOfMatches(plainText, regExpression);
 
-        for (let match of matches) {
-            
-            let index = match[1];
+    for (let match of matches) {
+        
+        let index = match[1];
 
-            if (index == null) { continue; }
-            
-            let chatLine = plainText.slice(lastSlice, index);
+        if (index == null) { continue; }
+        
+        let chatLine = plainText.slice(lastSlice, index);
 
-            lines.push(chatLine);
-            lastSlice = index;
-        }
+        lines.push(chatLine);
+        lastSlice = index;
     }
+
+    lines = lines.slice(1);
     return lines;
 }
 
