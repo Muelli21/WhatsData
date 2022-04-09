@@ -171,8 +171,11 @@ function getTimeline(owner, allMessages) {
         dateEntries[date.getTime()] = new DateEntry(date);
     }
 
+    console.log(dateEntries);
+
     for (let message of allMessages) {
         let date = message.getDate().withoutTime();
+
         let dateEntry = dateEntries[date.getTime()];
         dateEntry.addMessage(message);
         dateEntry.addParticipant(message.getParticipant());

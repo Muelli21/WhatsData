@@ -117,6 +117,13 @@ function getDateFromChatLineString(chatLine) {
         }
     }
 
+    let splittedString = dateString.split(".");
+
+    if(splittedString[2].length < 4) { 
+        splittedString[2] = "20" + splittedString[2]; 
+        dateString = splittedString.join(".");
+    }
+
     return dateString;
 }
 
